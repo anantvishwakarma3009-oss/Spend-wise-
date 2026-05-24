@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinVue Pro - Ultimate Mobile Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-100 min-h-screen antialiased px-4 py-6">
+
+    <div class="max-w-md mx-auto space-y-6">
+        
+        <header class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
+            <div class="flex items-center gap-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">FinVue Pro</h1>
+            </div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Real-time Advanced Multi-Filter Ledger</p>
+        </header>
+
+        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto custom-scrollbar gap-1">
+            <button onclick="setFilter('all')" id="btn-all" class="flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition bg-indigo-600 text-white shadow-md">All</button>
+            <button onclick="setFilter('day')" id="btn-day" class="flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition text-slate-400">Today</button>
+            <button onclick="setFilter('week')" id="btn-week" class="flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition text-slate-400">Weekly</button>
+            <button onclick="setFilter('month')" id="btn-month" class="flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition text-slate-400">Monthly</button>
+            <button onclick="setFilter('year')" id="btn-year" class="flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition text-slate-400">Yearly</button>
+        </div>
+
+        <div id="balance-card" class="bg-gradient-to-br from-slate-900 via-emerald-950/20 to-slate-900 border border-emerald-500/30 p-5 rounded-2xl shadow-xl transition-all duration-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span id="label-balance" class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Net Balance (All Time)</span>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Kamai me se Kharcha nikal kar kitna bacha</p>
+                </div>
+                <span class="text-2xl" id="balance-emoji">💰</span>
+            </div>
+            <h2 id="stat-balance" class="text-2xl font-black mt-3 text-emerald-400 tracking-tight">₹0</h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl shadow-md">
+                <span id="label-income" class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Income (All Time)</span>
+                <h2 id="stat-income" class="text-lg font-bold mt-1 text-slate-100">₹0</h2>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl shadow-md">
+                <span id="label-expense" class="text-[9px] font-bold text-rose-400 uppercase tracking-wider">Expense (All Time)</span>
+                <h2 id="stat-expense" class="text-lg font-bold mt-1 text-slate-100">₹0</h2>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl shadow-md">
+                <span class="text-[9px] font-bold text-sky-400 uppercase tracking-wider">Lena Hai</span>
+                <h2 id="stat-receive" class="text-lg font-bold mt-1 text-slate-100">₹0</h2>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl shadow-md">
+                <span class="text-[9px] font-bold text-amber-400 uppercase tracking-wider">Dena Hai</span>
+                <h2 id="stat-pay" class="text-lg font-bold mt-1 text-slate-100">₹0</h2>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <span id="chart-title" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visual Chart (All Time)</span>
+                <div class="flex gap-2 text-[8px] font-semibold uppercase">
+                    <div class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-sm"></span><span class="text-slate-400">In</span></div>
+                    <div class="flex items-center gap-1"><span class="w-2 h-2 bg-rose-500 rounded-sm"></span><span class="text-slate-400">Out</span></div>
+                </div>
+            </div>
+            <div id="chart-container" class="h-32 flex items-end justify-center overflow-x-auto custom-scrollbar gap-4 border-b border-slate-800 pb-2 px-2">
+                </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
+            <h3 class="text-xs font-bold uppercase text-slate-300 mb-3">➕ Post Entry / Register Udhaar</h3>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[10px] text-slate-400 font-medium mb-1">Entry Type</label>
+                    <select id="tx-type" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 outline-none">
+                        <option value="income">Income (+ Kamai)</option>
+                        <option value="expense">Expense (- Kharcha)</option>
+                        <option value="receive">Lena Hai (Khata Book)</option>
+                        <option value="pay">Dena Hai (Khata Book)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] text-slate-400 font-medium mb-1">Description / Person Name</label>
+                    <input type="text" id="tx-desc" placeholder="e.g., Salary, Food, Rahul, Amit" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 outline-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-medium mb-1">Amount (₹)</label>
+                        <input type="number" id="tx-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 font-medium mb-1">Date</label>
+                        <input type="date" id="tx-date" class="w-full bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-xs text-slate-200 outline-none">
+                    </div>
+                </div>
+                
+                <button type="button" id="main-submit-btn" class="w-full mt-2 bg-indigo-600 text-white font-bold text-xs uppercase p-3 rounded-xl shadow-md active:scale-[0.99]">
+                    Save Transaction
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
+            <h3 class="text-xs font-bold uppercase text-slate-300 mb-3 flex justify-between items-center">
+                <span>📊 Core Ledger Stream</span>
+                <span id="badge-filter" class="text-[9px] lowercase bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20">all items</span>
+            </h3>
+            <div id="ledger-list" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar"></div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
+            <h3 class="text-xs font-bold uppercase text-slate-300 mb-3">🤝 Active Len-Den (Khata Book)</h3>
+            <div id="khata-list" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar"></div>
+        </div>
+
+    </div>
+
+    <script>
+        let coreDatabase = [];
+        let currentFilter = 'all';
+
+        // Load Storage Safely
+        try {
+            const rawData = localStorage.getItem('finvue_ultimate_v9');
+            if (rawData) {
+                coreDatabase = JSON.parse(rawData);
+            }
+        } catch(e) {}
+
+        if (!Array.isArray(coreDatabase)) coreDatabase = [];
+
+        function getSafeTodayDate() {
+            const d = new Date();
+            const y = d.getFullYear();
+            let m = (d.getMonth() + 1).toString();
+            let day = d.getDate().toString();
+            if (m.length < 2) m = '0' + m;
+            if (day.length < 2) day = '0' + day;
+            return y + '-' + m + '-' + day;
+        }
+
+        document.getElementById('tx-date').value = getSafeTodayDate();
+
+        // Safe Click Interceptor
+        document.getElementById('main-submit-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('tx-type').value;
+            const desc = document.getElementById('tx-desc').value.trim();
+            const amtRaw = document.getElementById('tx-amount').value;
+            const amount = parseFloat(amtRaw);
+            let date = document.getElementById('tx-date').value;
+
+            if (!desc || isNaN(amount) || amount <= 0 || amtRaw === "") {
+                alert("Please enter a valid description and positive amount.");
+                return;
+            }
+            if (!date) date = getSafeTodayDate();
+
+            const uniqueId = 'id-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+            coreDatabase.push({
+                id: uniqueId,
+                type: type,
+                desc: desc,
+                amount: amount,
+                date: date
+            });
+
+            try {
+                localStorage.setItem('finvue_ultimate_v9', JSON.stringify(coreDatabase));
+            } catch(err) {}
+
+            document.getElementById('tx-desc').value = '';
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-date').value = getSafeTodayDate();
+
+            syncPipeline();
+        });
+
+        function deleteItem(id) {
+            coreDatabase = coreDatabase.filter(item => item.id !== id);
+            try { localStorage.setItem('finvue_ultimate_v9', JSON.stringify(coreDatabase)); } catch(e) {}
+            syncPipeline();
+        }
+
+        function clearKhataItem(id) {
+            coreDatabase = coreDatabase.filter(item => item.id !== id);
+            try { localStorage.setItem('finvue_ultimate_v9', JSON.stringify(coreDatabase)); } catch(e) {}
+            syncPipeline();
+        }
+
+        function setFilter(type) {
+            currentFilter = type;
+            ['all', 'day', 'week', 'month', 'year'].forEach(f => {
+                const btn = document.getElementById('btn-' + f);
+                if (btn) {
+                    btn.className = (f === type)
+                        ? "flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition bg-indigo-600 text-white shadow-md"
+                        : "flex-1 min-w-[65px] text-center py-2 rounded-lg text-[11px] font-semibold transition text-slate-400";
+                }
+            });
+            syncPipeline();
+        }
+
+        function evaluateTimeframeMatch(itemDateStr) {
+            if (currentFilter === 'all') return true;
+            if (!itemDateStr) return false;
+
+            const parts = itemDateStr.split('-');
+            if(parts.length !== 3) return false;
+            
+            const recordDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            if (currentFilter === 'day') {
+                return itemDateStr === getSafeTodayDate();
+            }
+            if (currentFilter === 'week') {
+                const boundary = new Date(today);
+                boundary.setDate(today.getDate() - 7);
+                return recordDate >= boundary && recordDate <= today;
+            }
+            if (currentFilter === 'month') {
+                return recordDate.getMonth() === today.getMonth() && recordDate.getFullYear() === today.getFullYear();
+            }
+            if (currentFilter === 'year') {
+                return recordDate.getFullYear() === today.getFullYear();
+            }
+            return true;
+        }
+
+        function forceChromeRepaint() {
+            const bodyNode = document.body;
+            const originalDisplay = bodyNode.style.display;
+            bodyNode.style.display = 'none';
+            bodyNode.offsetHeight; 
+            bodyNode.style.display = originalDisplay;
+        }
+
+        // --- NEW HELPER FUNCTIONS FOR DYNAMIC CHARTING ---
+        function getDayOfWeekName(dateStr) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const parts = dateStr.split('-');
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            return days[d.getDay()];
+        }
+
+        function getMonthName(dateStr) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const parts = dateStr.split('-');
+            return months[parseInt(parts[1]) - 1];
+        }
+
+        function renderDynamicChart(filteredLedger, incTotal, expTotal) {
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = ''; // Reset container
+
+            if (currentFilter === 'week') {
+                // Initialize Week Object
+                const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                let dataset = {};
+                weekDays.forEach(d => dataset[d] = { inc: 0, exp: 0 });
+
+                // Distribute data
+                filteredLedger.forEach(item => {
+                    const dayName = getDayOfWeekName(item.date);
+                    if (item.type === 'income') dataset[dayName].inc += item.amount;
+                    if (item.type === 'expense') dataset[dayName].exp += item.amount;
+                });
+
+                // Find highest single peak to scale bars proportionally
+                let maxVal = 1;
+                weekDays.forEach(d => {
+                    if(dataset[d].inc > maxVal) maxVal = dataset[d].inc;
+                    if(dataset[d].exp > maxVal) maxVal = dataset[d].exp;
+                });
+
+                // Render 7 pairs of bars
+                weekDays.forEach(day => {
+                    const incH = Math.round((dataset[day].inc / maxVal) * 80); // max 80% height for structure
+                    const expH = Math.round((dataset[day].exp / maxVal) * 80);
+                    
+                    chartContainer.innerHTML += `
+                        <div class="flex flex-col items-center flex-1 min-w-[36px] h-full justify-end">
+                            <div class="flex items-end gap-1 w-full justify-center h-[85px]">
+                                <div class="w-2.5 bg-emerald-500 rounded-t-sm min-h-[2px]" style="height: ${incH}%" title="In: ₹${dataset[day].inc}"></div>
+                                <div class="w-2.5 bg-rose-500 rounded-t-sm min-h-[2px]" style="height: ${expH}%" title="Out: ₹${dataset[day].exp}"></div>
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-1 font-medium">${day}</span>
+                        </div>
+                    `;
+                });
+
+            } else if (currentFilter === 'year') {
+                // Initialize Year Months
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                let dataset = {};
+                months.forEach(m => dataset[m] = { inc: 0, exp: 0 });
+
+                filteredLedger.forEach(item => {
+                    const mName = getMonthName(item.date);
+                    if (item.type === 'income') dataset[mName].inc += item.amount;
+                    if (item.type === 'expense') dataset[mName].exp += item.amount;
+                });
+
+                let maxVal = 1;
+                months.forEach(m => {
+                    if(dataset[m].inc > maxVal) maxVal = dataset[m].inc;
+                    if(dataset[m].exp > maxVal) maxVal = dataset[m].exp;
+                });
+
+                // Render 12 pairs of bars
+                months.forEach(m => {
+                    const incH = Math.round((dataset[m].inc / maxVal) * 80);
+                    const expH = Math.round((dataset[m].exp / maxVal) * 80);
+                    
+                    chartContainer.innerHTML += `
+                        <div class="flex flex-col items-center flex-1 min-w-[28px] h-full justify-end">
+                            <div class="flex items-end gap-0.5 w-full justify-center h-[85px]">
+                                <div class="w-2 bg-emerald-500 rounded-t-sm min-h-[2px]" style="height: ${incH}%" title="In: ₹${dataset[m].inc}"></div>
+                                <div class="w-2 bg-rose-500 rounded-t-sm min-h-[2px]" style="height: ${expH}%" title="Out: ₹${dataset[m].exp}"></div>
+                            </div>
+                            <span class="text-[8px] text-slate-400 mt-1 font-medium">${m}</span>
+                        </div>
+                    `;
+                });
+
+            } else {
+                // DEFAULT SINGLE DUAL BAR VIEW (For All, Today, Monthly)
+                const totalScaleMax = Math.max(incTotal, expTotal, 1);
+                const incPercentage = Math.round((incTotal / totalScaleMax) * 100);
+                const expPercentage = Math.round((expTotal / totalScaleMax) * 100);
+
+                chartContainer.innerHTML = `
+                    <div class="w-16 flex flex-col items-center h-full justify-end">
+                        <div class="w-full bg-emerald-500 rounded-t-md min-h-[4px] shadow-[0_0_10px_rgba(16,185,129,0.2)] transition-all duration-300" style="height: ${incPercentage}%"></div>
+                        <span class="text-[9px] text-slate-400 mt-1.5 font-medium whitespace-nowrap">In (${incPercentage}%)</span>
+                    </div>
+                    <div class="w-16 flex flex-col items-center h-full justify-end">
+                        <div class="w-full bg-rose-500 rounded-t-md min-h-[4px] shadow-[0_0_10px_rgba(244,63,94,0.2)] transition-all duration-300" style="height: ${expPercentage}%"></div>
+                        <span class="text-[9px] text-slate-400 mt-1.5 font-medium whitespace-nowrap">Out (${expPercentage}%)</span>
+                    </div>
+                `;
+            }
+        }
+        // --- END OF NEW CHARTING LOGIC ---
+
+        function syncPipeline() {
+            const filteredLedger = coreDatabase.filter(item => (item.type === 'income' || item.type === 'expense') && evaluateTimeframeMatch(item.date));
+            const activeKhata = coreDatabase.filter(item => (item.type === 'receive' || item.type === 'pay'));
+
+            let inc = 0, exp = 0, rec = 0, pay = 0;
+
+            filteredLedger.forEach(t => {
+                if(t.type === 'income') inc += t.amount;
+                if(t.type === 'expense') exp += t.amount;
+            });
+
+            activeKhata.forEach(u => {
+                if(u.type === 'receive') rec += u.amount;
+                if(u.type === 'pay') pay += u.amount;
+            });
+let netBalance = inc - exp;
+
+            const filterLabelText = currentFilter === 'all' ? 'All Time' : currentFilter.toUpperCase();
+            document.getElementById('label-income').innerText = 'Income (' + filterLabelText + ')';
+            document.getElementById('label-expense').innerText = 'Expense (' + filterLabelText + ')';
+            document.getElementById('badge-filter').innerText = currentFilter + ' view state';
+            document.getElementById('label-balance').innerText = 'Net Balance (' + filterLabelText + ')';
+            document.getElementById('chart-title').innerText = 'Visual Chart (' + filterLabelText + ')';
+
+            document.getElementById('stat-income').innerText = '₹' + inc.toLocaleString('en-IN');
+            document.getElementById('stat-expense').innerText = '₹' + exp.toLocaleString('en-IN');
+            document.getElementById('stat-receive').innerText = '₹' + rec.toLocaleString('en-IN');
+            document.getElementById('stat-pay').innerText = '₹' + pay.toLocaleString('en-IN');
+            
+            const balanceTextNode = document.getElementById('stat-balance');
+            const balanceCardNode = document.getElementById('balance-card');
+            const balanceEmojiNode = document.getElementById('balance-emoji');
+
+            balanceTextNode.innerText = '₹' + netBalance.toLocaleString('en-IN');
+
+            if (netBalance >= 0) {
+                balanceCardNode.className = "bg-gradient-to-br from-slate-900 via-emerald-950/20 to-slate-900 border border-emerald-500/30 p-5 rounded-2xl shadow-xl";
+                balanceTextNode.className = "text-2xl font-black mt-3 text-emerald-400 tracking-tight";
+                balanceEmojiNode.innerText = "💰";
+            } else {
+                balanceCardNode.className = "bg-gradient-to-br from-slate-900 via-rose-950/20 to-slate-900 border border-rose-500/30 p-5 rounded-2xl shadow-xl";
+                balanceTextNode.className = "text-2xl font-black mt-3 text-rose-400 tracking-tight";
+                balanceEmojiNode.innerText = "⚠️";
+            }
+
+            // Trigger Dynamic Chart Render Engine
+            renderDynamicChart(filteredLedger, inc, exp);
+
+            // Render Ledger Streams
+            const ledgerElement = document.getElementById('ledger-list');
+            if (filteredLedger.length === 0) {
+                ledgerElement.innerHTML = '<p class="text-slate-600 text-center text-[11px] py-6">No records match this timeframe.</p>';
+            } else {
+                let ledgerHTML = '';
+                for (let i = filteredLedger.length - 1; i >= 0; i--) {
+                    const item = filteredLedger[i];
+                    ledgerHTML += `
+                        <div class="flex justify-between items-center bg-slate-950/40 border border-slate-800/80 p-3 rounded-xl">
+                            <div class="max-w-[70%] truncate">
+                                <p class="text-xs font-semibold text-slate-200 truncate">${item.desc}</p>
+                                <span class="text-[9px] text-slate-500">${item.date}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
+                                    ${item.type === 'income' ? '+' : '-'}₹${item.amount.toLocaleString('en-IN')}
+                                </span>
+                                <button onclick="deleteItem('${item.id}')" class="text-slate-600 text-xs p-1 ml-1">✕</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                ledgerElement.innerHTML = ledgerHTML;
+            }
+
+            // Render Khata Logs
+            const khataElement = document.getElementById('khata-list');
+            if (activeKhata.length === 0) {
+                khataElement.innerHTML = '<p class="text-slate-600 text-center text-[11px] py-6">No pending credits or debits registered.</p>';
+            } else {
+                let khataHTML = '';
+                for (let i = activeKhata.length - 1; i >= 0; i--) {
+                    const item = activeKhata[i];
+                    khataHTML += `
+                        <div class="flex justify-between items-center bg-slate-950/40 border border-slate-800/80 p-3 rounded-xl">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-200">${item.desc}</p>
+                                <span class="text-[9px] inline-block mt-0.5 px-2 py-0.2 rounded font-medium ${item.type == 'receive' ? 'text-sky-400' : 'text-amber-400'}">
+                                    ${item.type == 'receive' ? 'Lena Hai' : 'Dena Hai'}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-bold ${item.type === 'receive' ? 'text-sky-400' : 'text-amber-400'}">
+                                    ₹${item.amount.toLocaleString('en-IN')}
+                                </span>
+                                <button onclick="clearKhataItem('${item.id}')" class="bg-slate-900 border border-slate-800 text-[10px] font-semibold px-2 py-1 rounded-lg transition">
+                                    ✓ Clear
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                khataElement.innerHTML = khataHTML;
+            }
+
+            forceChromeRepaint();
+        }
+
+        // Boot Init
+        syncPipeline();
+    </script>
+</body>
+</html>
+
+         
